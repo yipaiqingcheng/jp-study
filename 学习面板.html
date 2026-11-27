@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>日本語 学習端末 · 単語 / 文法 / 聴解</title>
+<link rel="stylesheet" href="assets/style.css?v20261127235909">
+</head>
+<body>
+
+<div class="bg-grid"></div>
+<div class="bg-glow"></div>
+<div class="bg-wave"></div>
+<div class="grain"></div>
+
+<!-- ============ 左侧导轨 ============ -->
+<aside class="rail">
+  <div class="rail-mark" title="学習端末">語</div>
+  <nav class="rail-nav">
+    <button class="tab active" data-view="words"><b>単</b><i>VOCAB</i></button>
+    <button class="tab" data-view="grammar"><b>文</b><i>GRAMMAR</i></button>
+    <button class="tab" data-view="listening"><b>聴</b><i>LISTEN</i></button>
+  </nav>
+  <div class="rail-foot">
+    <button class="icon-btn" id="themeBtn" title="切换明暗">☾</button>
+    <div class="rail-vertical">学習端末</div>
+  </div>
+</aside>
+
+<div class="shell">
+
+  <!-- ============ HUD ============ -->
+  <header class="hud">
+    <div class="hud-left">
+      <div class="hud-title">日本語 <em>学習端末</em></div>
+      <div class="hud-status"><i class="dot"></i>系統 稼働中 · N2 / N3</div>
+    </div>
+    <div class="hud-right">
+      <div class="hud-cell"><span>Local time</span><b id="hudClock">--:--:--</b></div>
+      <div class="hud-cell accent"><span>Streak</span><b><span id="hudStreak">0</span><small>日</small></b></div>
+      <div class="hud-cell"><span>Vocabulary</span><b><span id="hudWords">0</span><small>語</small></b></div>
+    </div>
+  </header>
+
+  <main class="content">
+
+    <!-- ================= 单词 ================= -->
+    <section class="view active" id="view-words">
+      <div class="view-head">
+        <h2><span class="jp">単語</span><em>Vocabulary · Ebbinghaus</em></h2>
+        <div class="view-meta">
+          <span id="todayLabel"></span>
+          <span id="dataNote"></span>
+          <button class="btn ghost btn-dict" id="dictBtn" type="button">默写模式</button>
+        </div>
+      </div>
+
+      <section class="panel dict-panel" id="dictPanel" hidden>
+        <div class="dict-top">
+          <div class="panel-tag"><span>默写</span><i>Dictation</i></div>
+          <button class="btn ghost" id="dictQuit" type="button">退出</button>
+        </div>
+
+        <div class="dict-stage" id="dictStage">
+          <div class="dict-no" id="dictNo">01</div>
+          <div class="dict-hint">听发音，在纸上写「单词 + 假名」，然后点下一个<span class="dict-wrong-tag" id="dictWrongTag" hidden></span></div>
+          <div class="dict-actions">
+            <button class="btn primary" id="dictReplay" type="button">再听一次</button>
+            <button class="btn ghost" id="dictNext" type="button">下一个</button>
+            <button class="btn ghost" id="dictFinish" type="button" hidden>已完成</button>
+          </div>
+          <div class="dict-dots" id="dictDots"></div>
+        </div>
+
+        <div class="dict-done" id="dictDone" hidden>
+          <h3>默写清单</h3>
+          <div class="dict-hint">把纸拍照发到微信里，我会逐词批改；也可以先「复制清单」方便核对编号。</div>
+          <ol class="dict-list" id="dictList"></ol>
+          <div class="dict-actions">
+            <button class="btn ghost" id="dictToggleAnswer" type="button">显示答案</button>
+            <button class="btn ghost" id="dictCopy" type="button">复制清单</button>
+            <button class="btn primary" id="dictAgain" type="button">再默写一遍</button>
+          </div>
+          <div class="dict-grade">
+            <label for="dictFeedback">批改结果粘贴区（○ = 全对，△ = 汉字对／假名错，× = 整个错）</label>
+            <textarea id="dictFeedback" rows="3" placeholder="1× 2○ 3△ 4○ …"></textarea>
+            <div class="dict-hint dict-queue-hint">× 与 △ 会自动进入「次日默写」队列，下次进来先默这些词。</div>
+            <div class="dict-actions">
+              <button class="btn ghost" id="dictApply" type="button">登记批改结果</button>
+              <span class="dict-note" id="dictNote"></span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="ws-grid">
+
+        <section class="panel stage-panel">
+          <div class="panel-tag"><span>記憶装置</span><i>Flashcard</i></div>
+
+          <div class="stage-inner">
+            <div class="card-stage" id="cardStage">
+              <div class="flashcard" id="flashcard">
+                <!-- 正面 -->
+                <div class="face face-front">
+                  <div class="fc-corner" id="cCorner">新</div>
+                  <div class="fc-top">
+                    <div class="chip-row" id="cLevel"></div>
+                    <span class="fc-level-mark">JP · WORD</span>
+                  </div>
+                  <div class="fc-center">
+                    <div class="word-kana" id="wordKana"></div>
+                    <div class="word-main" id="wordMain">—</div>
+                    <div class="fc-rule"></div>
+                  </div>
+                  <div class="word-hint">点击翻面 <span>Click to flip</span></div>
+                </div>
+                <!-- 背面 -->
+                <div class="face face-back">
+                  <div class="back-top">
+                    <span class="back-word" id="backWord"></span>
+                    <span class="back-kana" id="backKana"></span>
+                    <button class="speak-btn speak-mini" id="wordSpeak" type="button" title="播放单词读音">单词</button>
+                    <span class="pos" id="backPos"></span>
+                  </div>
+                  <div class="meaning" id="meaning"></div>
+                  <div class="meaning-en"><span id="meaningEn"></span><span class="ipa" id="meaningIpa"></span></div>
+                  <div class="example-box" id="exBox">
+                    <button class="speak-btn" id="exSpeak" type="button">点读</button>
+                    <div class="ex-jp" id="exJp"></div>
+                    <div class="ex-kana" id="exKana"></div>
+                    <div class="ex-zh" id="exZh"></div>
+                    <div class="ex-en" id="exEn"></div>
+                  </div>
+                  <div class="chart-note" id="nextNote" style="margin-top:14px"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="panel empty-state" id="wordEmpty" style="display:none;margin-top:8px">
+              <div class="big" id="emptyTitle">今天还没有学习记录</div>
+              <div id="emptySub"></div>
+              <div style="margin-top:22px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+                <button class="btn primary" id="moreNewBtn">再来 10 个新词</button>
+                <button class="btn ghost" id="resetQueueBtn">重排今日队列</button>
+              </div>
+            </div>
+
+            <div id="studyControls" style="padding-bottom:20px">
+              <div class="rating-bar" id="ratingBar">
+                <button class="rate forget" data-kind="forget"><span class="rk">忘</span><b>忘记了</b><i>Forget · 1 day</i></button>
+                <button class="rate fuzzy" data-kind="fuzzy"><span class="rk">半</span><b>有点模糊</b><i>Fuzzy · 1 day</i></button>
+                <button class="rate know" data-kind="know"><span class="rk">覚</span><b>记住了</b><i>Known · +1 step</i></button>
+              </div>
+
+              <div class="progress-line">
+                <span id="queueLabel">本轮 0 / 0</span>
+                <div class="bar"><i id="progressBar"></i></div>
+                <span>Space 翻面 · 1/2/3 评级</span>
+              </div>
+              <div class="queue" id="queueDots"></div>
+            </div>
+          </div>
+        </section>
+
+        <aside class="ws-side">
+
+          <section class="panel">
+            <div class="panel-tag"><span>統計</span><i>Status</i></div>
+            <div class="readouts">
+              <div class="readout"><span>待復習</span><b id="statDue">0</b></div>
+              <div class="readout"><span>今日已学</span><b id="statToday">0</b></div>
+              <div class="readout"><span>已掌握</span><b id="statMastered">0</b></div>
+              <div class="readout"><span>连续打卡</span><b><span id="statDays">0</span><small style="font-size:11px;color:var(--ink-3)">日</small></b></div>
+            </div>
+            <div class="stat-note" id="statTotal"></div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-tag"><span>記憶曲線</span><i>Ebbinghaus</i></div>
+            <div id="memoryChart"></div>
+            <div class="legend">
+              <span><i style="background:var(--seal);opacity:.6"></i>不复习的遗忘</span>
+              <span><i style="background:var(--cyan)"></i>按间隔复习</span>
+            </div>
+            <div class="curve-note">间隔 0 · 1 · 2 · 4 · 7 · 15 · 30 · 60 天。每次「记住了」升一阶，间隔翻到下一档；「忘记了」退一阶并回到 1 天。</div>
+          </section>
+
+        </aside>
+
+        <section class="panel log-panel">
+          <div class="panel-tag"><span>単語ログ</span><i>All words · <span id="wordCount">0</span></i></div>
+          <div class="scroll-box">
+            <table class="word-table">
+              <thead>
+                <tr><th>単語 / Kana</th><th>Level</th><th>释义</th><th>Stage</th><th>Next review</th></tr>
+              </thead>
+              <tbody id="wordTableBody"></tbody>
+            </table>
+          </div>
+        </section>
+
+      </div>
+    </section>
+
+    <!-- ================= 语法 ================= -->
+    <section class="view" id="view-grammar">
+      <div class="view-head">
+        <h2><span class="jp">文法</span><em>Grammar library</em></h2>
+        <div class="view-meta"><span>把要学的语法告诉我，我录进来</span></div>
+      </div>
+
+      <div class="readout-row">
+        <div class="readout"><span>總量 · Total</span><b id="gTotal">0</b></div>
+        <div class="readout"><span>学習中 · Learning</span><b id="gLearning">0</b></div>
+        <div class="readout"><span>已掌握 · Mastered</span><b id="gMastered">0</b></div>
+        <div class="readout"><span>需復習 · Review</span><b id="gReview">0</b></div>
+      </div>
+
+      <div class="toolbar">
+        <div class="search-wrap">
+          <span class="ico">⌕</span>
+          <input class="search" id="gSearch" type="search" placeholder="搜句型 / 释义 / 标签">
+        </div>
+        <div class="seg" id="gFilter">
+          <button class="on" data-f="all">全部</button>
+          <button data-f="learning">学习中</button>
+          <button data-f="review">需复习</button>
+          <button data-f="mastered">已掌握</button>
+          <button data-f="n2">N2</button>
+          <button data-f="n3">N3</button>
+        </div>
+      </div>
+
+      <div class="g-grid" id="gGrid"></div>
+
+      <div class="panel tip-panel">
+        <b>怎么加新语法？</b>
+        <p>直接把语法发给 AI，例如：<span class="chip">把「～わけではない（并非……）」加进语法库，附两个例句</span><br>
+        AI 会写进 <code>日语/数据-语法.js</code>，刷新页面就能看到。卡片右下角可标记「需复习 / 学习中 / 已掌握」，点击卡片展开例句。</p>
+      </div>
+    </section>
+
+    <!-- ================= 听力 ================= -->
+    <section class="view" id="view-listening">
+      <div id="listenListWrap">
+        <div class="view-head">
+          <h2><span class="jp">聴解</span><em>Listening lab</em></h2>
+          <div class="view-meta"><span>逐句假名 · 语法解析 · 中文对照</span></div>
+        </div>
+        <div class="listen-grid" id="listenList"></div>
+
+        <div class="panel listen-tips">
+          <div class="panel-tag"><i></i>精聴ノ手順 <span class="en">HOW TO DRILL</span></div>
+          <ol class="tips-list">
+            <li><b>通听</b><span>不暂停、不看原文，先抓大意与说话人立场。</span></li>
+            <li><b>逐句</b><span>点句子反复听，先辨音，再对注音核对没听清的音。</span></li>
+            <li><b>拆解</b><span>点「文」展开语法解析，把长句切到主谓宾与修饰关系。</span></li>
+            <li><b>跟读</b><span>降到 0.75× 跟读两遍，再回 1× 复述整段。</span></li>
+          </ol>
+        </div>
+      </div>
+
+      <div id="listenDetail" style="display:none">
+        <div class="detail-top">
+          <button class="btn ghost small" id="backToListen">← 返回列表</button>
+          <span class="hint">句子定位按字数比例估算，可能有 1 秒左右误差</span>
+        </div>
+        <h2 class="detail-title" id="detailTitle"></h2>
+        <div class="detail-jp" id="detailJp"></div>
+        <div class="meta chip-row" id="detailChips"></div>
+
+        <div class="player" id="player"></div>
+
+        <div class="toggle-row">
+          <button class="toggle" id="tgRuby">隐藏注音</button>
+          <button class="toggle" id="tgZh">隐藏中文</button>
+          <span>点句子播放该句 · 文 = 语法解析 · ↻ 循环当前句</span>
+        </div>
+
+        <div class="sent-list" id="sentList"></div>
+
+        <div class="summary-grid" id="listenSummary"></div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="数据-单词.js?v20261127235909"></script>
+<script src="数据-语法.js?v20261127235909"></script>
+<script src="数据-听力.js?v20261127235909"></script>
+<script src="assets/app.js?v20261127235909"></script>
+</body>
+</html>
